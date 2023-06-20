@@ -12,7 +12,7 @@ const signUpUser = async () => {
   const record = await pb
     .collection("students")
     .create({
-      username: name.value,
+      username: name.value.split("")[0],
       email: email.value,
       emailVisibility: true,
       password: password.value,

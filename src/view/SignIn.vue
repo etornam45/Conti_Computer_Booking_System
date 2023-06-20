@@ -31,13 +31,13 @@ async function signin() {
       <input v-model="password" type="password" placeholder="Password" />
 
       <button v-on:click.prevent="signin">Sign In</button>
-      <p>Don't have an account? <a href="/signup">create one</a></p>
+      <p>Don't have an account? <RouterLink to="/signup">create one</RouterLink></p>
     </form>
   </main>
 </template>
 <!-- <Footer /> -->
 
-<style>
+<style scoped>
 main {
   min-height: 100vh;
   display: flex;
@@ -50,7 +50,9 @@ form {
   display: flex;
   flex-direction: column;
   max-width: 400px;
-  width: 400px;
+  /* width: 400px; */
+  width: calc(100% - 100px);
+
   gap: 30px;
   padding: 30px;
   border: 1.6px solid rgb(161, 161, 161);

@@ -47,20 +47,22 @@ const signUpUser = async () => {
   </main>
 </template>
 
-<style>
+<style scoped>
 main {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  padding-bottom: 70px;
 }
 
 form {
   display: flex;
   flex-direction: column;
   max-width: 400px;
-  width: 400px;
+  /* width: 400px; */
+  width: calc(100% - 100px);
   gap: 30px;
   padding: 30px;
   border: 1.6px solid rgb(161, 161, 161);

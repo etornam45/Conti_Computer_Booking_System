@@ -4,9 +4,14 @@ import PocketBase from "pocketbase";
 import { onMounted, ref, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import Computer from "../components/icons/Computer.vue"
+import NoBookings from "../components/NoBookings.vue";
 let router = useRouter();
 const pb = new PocketBase("http://127.0.0.1:8090");
 let currentUser = pb.authStore.model;
+
+
+let currentBooking = ref()
+
 
 let Available = ref([]);
 let totalPc = ref(0);
@@ -98,20 +103,41 @@ const LogOut = () => {
           <Computer />
           <p><span>{{ Available.length }}</span> / {{ totalPc }} Available</p>
         </div>
-        <button style="background: #008db7;">
+        <button class="book-now" :disabled="!currentBooking" style="background: #008db7;">
           Book Now
         </button>
       </section>
-      <section></section>
+      <section class="booked">
+
+        <NoBookings v-if="!currentBooking"/>
+        <div v-else>
+          Booked ! 
+        </div>
+      </section>
     </article>
   </main>
 </template>
 
 <style scoped>
+
+.book-now:disabled{
+  background: rgb(216, 216, 216) !important;
+  cursor: no-drop;
+}
+
+
+.booked{
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .ava-sec{
   display: flex;
   flex-direction: column;
   gap: 30px;
+  font-weight: 200;
   font-size: 1.5rem;
 }
 
@@ -131,7 +157,7 @@ const LogOut = () => {
 
 .ave{
   display: flex;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: center;
   gap: 30px;
 }

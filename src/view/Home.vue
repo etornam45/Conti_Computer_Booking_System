@@ -3,15 +3,13 @@
 import PocketBase from "pocketbase";
 import { onMounted, ref, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import Computer from "../components/icons/Computer.vue"
+import Computer from "../components/icons/Computer.vue";
 import NoBookings from "../components/NoBookings.vue";
 let router = useRouter();
 const pb = new PocketBase("http://127.0.0.1:8090");
 let currentUser = pb.authStore.model;
 
-
-let currentBooking = ref()
-
+let currentBooking = ref();
 
 let Available = ref([]);
 let totalPc = ref(0);
@@ -76,6 +74,12 @@ const LogOut = () => {
     name: "signin",
   });
 };
+
+function bookNow() {
+  router.push({
+    name: "book",
+  });
+}
 </script>
 
 <template>
@@ -101,39 +105,41 @@ const LogOut = () => {
       <section class="ava-sec">
         <div class="ave">
           <Computer />
-          <p><span>{{ Available.length }}</span> / {{ totalPc }} Available</p>
+          <p>
+            <span>{{ Available.length }}</span> / {{ totalPc }} Available
+          </p>
         </div>
-        <button class="book-now" :disabled="!currentBooking" style="background: #008db7;">
+        <button
+          @click="bookNow"
+          class="book-now"
+          :disabled="currentBooking"
+          style="background: #008db7"
+        >
           Book Now
         </button>
       </section>
       <section class="booked">
-
-        <NoBookings v-if="!currentBooking"/>
-        <div v-else>
-          Booked ! 
-        </div>
+        <NoBookings v-if="!currentBooking" />
+        <div v-else>Booked !</div>
       </section>
     </article>
   </main>
 </template>
 
 <style scoped>
-
-.book-now:disabled{
+.book-now:disabled {
   background: rgb(216, 216, 216) !important;
   cursor: no-drop;
 }
 
-
-.booked{
+.booked {
   min-height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.ava-sec{
+.ava-sec {
   display: flex;
   flex-direction: column;
   gap: 30px;
@@ -141,7 +147,7 @@ const LogOut = () => {
   font-size: 1.5rem;
 }
 
-.ave span{
+.ave span {
   font-size: 2.5rem;
   margin-bottom: -10px;
   display: flex;
@@ -149,13 +155,12 @@ const LogOut = () => {
   align-items: flex-end;
 }
 
-.ave p{
+.ave p {
   display: flex;
   align-items: flex-end;
-
 }
 
-.ave{
+.ave {
   display: flex;
   align-items: baseline;
   justify-content: center;

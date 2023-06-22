@@ -18,7 +18,7 @@ onMounted(async () => {
 
   pb.collection("computers")
     .getFullList({
-      filter: 'status = "Available"',
+      // filter: 'status = "Available"',
     })
     .then((result) => {
       AllComputers.value = result;
@@ -29,12 +29,13 @@ onMounted(async () => {
     .getFullList()
     .then((a) => {
       for (let computer = 0; computer < AllComputers.value.length; computer++) {
-        // a.forEach(booking => {
-        //   if(AllComputers.value[computer].id == booking.computer){
-        //     AllComputers.value[computer].booking.push(booking)
-        //     console.log(AllComputers)
-        //   }
-        // })
+        for (let booking = 0; booking < a.length; booking++) {
+          if(AllComputers.value[computer].id == a[booking].computer){
+            // AllComputers.value[computer].booking.push(booking)
+            console.log(AllComputers.value[computer], a[booking])
+            console.log(AllComputers)
+          }
+        }
 
         bookings.value = a
         console.log(a)

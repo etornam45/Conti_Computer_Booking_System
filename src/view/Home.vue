@@ -5,19 +5,28 @@ import { onMounted, ref, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import Computer from "../components/icons/Computer.vue";
 import NoBookings from "../components/NoBookings.vue";
+
+// Router for routing in vue
 let router = useRouter();
 const pb = new PocketBase("http://127.0.0.1:8090");
+
+// Current Logged in User
 let currentUser = pb.authStore.model;
 
 let currentBooking = ref();
 
+// Available for computers free at the time 
 let Available = ref([]);
+
+// The total number of computers available 
 let totalPc = ref(0);
 pb.authStore.onChange(() => {
   currentUser = pb.authStore.model;
 });
 
+
 onMounted(async () => {
+  // If user is not signed in navigate to sign in page 
   console.log(currentUser);
   if (!currentUser) {
     console.log(currentUser);
@@ -26,6 +35,7 @@ onMounted(async () => {
     });
   }
 
+  // Gets all the Pcs 
   getTotalPc();
   // getAvailable();
   pb.collection("computers").subscribe("*", function (e) {
@@ -45,6 +55,7 @@ onMounted(async () => {
   });
 });
 
+// Function to get all PC's 
 const getTotalPc = async () => {
   const computers = await pb
     .collection("computers")
@@ -174,9 +185,9 @@ function bookNow() {
 }
 
 section {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   /* height: 300px; */
-  padding: 20px;
+  padding: 10px;
   background: whitesmoke;
   border: 1px solid grey;
   /* box-shadow: 1px 1px 2px #ccc; */
@@ -236,8 +247,8 @@ header > div {
     padding: 0 20px;
   }
   article {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 

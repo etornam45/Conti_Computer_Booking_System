@@ -1,33 +1,49 @@
 <script setup>
-    import PocketBase from "pocketbase";
-    import { useRouter } from "vue-router";
-    import { onMounted, ref, onUnmounted } from "vue";
-    
-    let router = useRouter();
-    const pb = new PocketBase("http://127.0.0.1:8090");
-    let currentUser = pb.authStore.model;
-    
-    let AllComputers = ref([]);
-    
-    onMounted(async () => {
-      if (!currentUser) {
-        router.push({
-          name: "signin",
-        });
-      }
-  
-      pb.collection("computers")
-        .getFullList({
-          filter: 'status = "Available"',
-        })
-        .then((result) => {
-            AllComputers.value = result
-        });
+import PocketBase from "pocketbase";
+import { useRouter } from "vue-router";
+import { onMounted, ref, onUnmounted } from "vue";
+
+let router = useRouter();
+const pb = new PocketBase("http://127.0.0.1:8090");
+let currentUser = pb.authStore.model;
+
+let AllComputers = ref([]);
+let bookings = ref([])
+onMounted(async () => {
+  if (!currentUser) {
+    router.push({
+      name: "signin",
+    });
+  }
+
+  pb.collection("computers")
+    .getFullList({
+      filter: 'status = "Available"',
+    })
+    .then((result) => {
+      AllComputers.value = result;
+      console.log(result)
     });
 
-    onUnmounted(async () => {
-        
-    })
+  pb.collection("bookings")
+    .getFullList()
+    .then((a) => {
+      for (let computer = 0; computer < AllComputers.value.length; computer++) {
+        // a.forEach(booking => {
+        //   if(AllComputers.value[computer].id == booking.computer){
+        //     AllComputers.value[computer].booking.push(booking)
+        //     console.log(AllComputers)
+        //   }
+        // })
+
+        bookings.value = a
+        console.log(a)
+        console.log(bookings.value);
+      }
+    });
+});
+
+onUnmounted(async () => {});
 </script>
 
 <template>

@@ -82,9 +82,27 @@ onMounted(async () => {
         });
         break;
       case "update":
-        
+        AllProccessComputers.value.forEach((comp) => {
+          comp.bookings.forEach((book, boodId) => {
+            if (book.id == e.record.id) {
+              comp.bookings[boodId] = create_a_booking({
+                start: e.record.start_time,
+                end: e.record.end_time,
+                id: e.record.id,
+                code: e.record.booking_code,
+              });
+            }
+          });
+        });
         break;
       case "delete":
+        AllProccessComputers.value.forEach((comp) => {
+          comp.bookings.forEach((book, boodId) => {
+            if (book.id == e.record.id) {
+              comp.bookings.splice(boodId, 1);
+            }
+          });
+        });
         break;
 
       default:
@@ -108,6 +126,10 @@ function create_a_booking({ start, end, id, code }) {
     offset: (startT - tadayCurrent) * changeRate,
   };
 }
+
+function getStartTime(event) {
+  console.log(event);
+}
 </script>
 
 <template>
@@ -120,12 +142,14 @@ function create_a_booking({ start, end, id, code }) {
     <section>
       <h3>Section A</h3>
 
-      <div v-if="AllComputers.length !== 0">
+      <div v-if="AllProccessComputers.length !== 0">
         <ul style="list-style: none">
           <li v-for="computer in AllProccessComputers" :key="computer.id">
-            <div class="timeline">
+            <div class="timeline" v-if="computer.section == 'Section A'"
+            @select="getStartTime($event)"
+            >
               <div>{{ computer.name }}</div>
-              <div class="timespace">
+              <div class="timespace" >
                 <div
                   v-for="book in computer.bookings"
                   :key="book.id"
@@ -159,10 +183,82 @@ function create_a_booking({ start, end, id, code }) {
 
     <section>
       <h3>Section B</h3>
+
+      <div v-if="AllProccessComputers.length !== 0">
+        <ul style="list-style: none">
+          <li v-for="computer in AllProccessComputers" :key="computer.id">
+            <div class="timeline" v-if="computer.section == 'Section A'">
+              <div>{{ computer.name }}</div>
+              <div class="timespace">
+                <div
+                  v-for="book in computer.bookings"
+                  :key="book.id"
+                  :style="{ left: book.offset + 'px' }"
+                  :title="book.code"
+                  class="timewidth"
+                >
+                  <div
+                    :style="{
+                      width: book.width + 'px',
+                      border: '1px solid white',
+                      background: `rgb(
+                  ${Math.floor(Math.random() * 255)},
+                  ${Math.floor(Math.random() * 255)},
+                  ${Math.floor(Math.random() * 255)}
+                )`,
+                      overflow: `hidden`,
+                    }"
+                  >
+                    <span class="blend">
+                      {{ book.code }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
     </section>
 
     <section>
       <h3>Section C</h3>
+
+      <div v-if="AllProccessComputers.length !== 0">
+        <ul style="list-style: none">
+          <li v-for="computer in AllProccessComputers" :key="computer.id">
+            <div class="timeline" v-if="computer.section == 'Section A'">
+              <div>{{ computer.name }}</div>
+              <div class="timespace">
+                <div
+                  v-for="book in computer.bookings"
+                  :key="book.id"
+                  :style="{ left: book.offset + 'px' }"
+                  :title="book.code"
+                  class="timewidth"
+                >
+                  <div
+                    :style="{
+                      width: book.width + 'px',
+                      border: '1px solid white',
+                      background: `rgb(
+                  ${Math.floor(Math.random() * 255)},
+                  ${Math.floor(Math.random() * 255)},
+                  ${Math.floor(Math.random() * 255)}
+                )`,
+                      overflow: `hidden`,
+                    }"
+                  >
+                    <span class="blend">
+                      {{ book.code }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
     </section>
   </main>
 </template>
@@ -182,7 +278,7 @@ main{
 .timeline{
   display: flex;
   flex-direction: row;
-  background: beige;
+  background: #e5e5e5;
   width: 800px;
   /* height: pa; */
   padding: 10px;

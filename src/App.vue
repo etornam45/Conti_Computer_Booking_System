@@ -16,6 +16,7 @@ import { RouterView } from "vue-router";
 main{
   width: 800px;
   margin: 0 auto;
+  margin-bottom: 100px;
 }
 
   footer{

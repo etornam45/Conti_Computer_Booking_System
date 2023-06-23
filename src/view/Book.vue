@@ -14,6 +14,10 @@ let tadayCurrent = new Date(
   "Fri Jun 22 2023 10:51:23 GMT+0000 (Greenwich Mean Time)"
 );
 
+let selectedBooking = ref({});
+
+let selectedTime = ref({});
+
 let changeRate = 65 / (3600 * 1000);
 
 let AllProccessComputers = ref([]);
@@ -115,20 +119,59 @@ onUnmounted(async () => {
   await pb.collection("bookings").unsubscribe("*");
 });
 
+/**
+ * Create a booking with the given parameters.
+ * @param {Object} params - The parameters for the booking.
+ * @param {string} params.start - The start time of the booking.
+ * @param {string} params.end - The end time of the booking.
+ * @param {string} params.id - The ID of the booking.
+ * @param {string} params.code - The code of the booking.
+ * @returns {Object} Returns an object with properties id, code, width, and offset.
+ */
 function create_a_booking({ start, end, id, code }) {
+  // Convert start and end times to Date objects
   let startT = new Date(start);
   let endT = new Date(end);
 
+  // Calculate the width and offset of the booking based on the change rate
+  let width = (endT - startT) * changeRate;
+  let offset = (startT - tadayCurrent) * changeRate;
+
+  // Return an object with the booking properties
   return {
     id: id,
     code: code,
-    width: (endT - startT) * changeRate,
-    offset: (startT - tadayCurrent) * changeRate,
+    width: width,
+    offset: offset,
   };
 }
 
-function getStartTime(event) {
-  console.log(event);
+function getDrag(event, computer) {
+  // console.log(event);
+  if(event.type == "dragstart"){
+    selectedBooking.value['offset'] = event.offsetX
+    selectedBooking.value["computer"] = computer 
+    console.log(event.offsetX)
+  }else if(event.type == "drag"){
+    if(event.offsetX < 790 && event.offsetX > 0){
+      console.log(event.offsetX)
+      selectedBooking.value['width'] = event.offsetX - selectedBooking.value['offset']
+    }
+
+  }else if (event.type == "dragend"){
+    let time = {
+      start: tadayCurrent.getTime() + new Date().setTime(`${(selectedBooking.value['offset']/65) * 3600 * 1000}`),
+      end: tadayCurrent.getTime() + new Date().setTime(`${((selectedBooking.value['width'] + selectedBooking.value['offset'])/65) * 3600 * 1000}`),
+    }
+    selectedTime.value = {
+      start: `${new Date(time.start).getHours()}:${new Date(time.start).getMinutes()}:${new Date(time.start).getSeconds()} `,
+      end: `${new Date(time.end).getHours()}:${new Date(time.end).getMinutes()}:${new Date(time.end).getSeconds()} `,
+      computer: selectedBooking.value['computer']
+    }
+
+    console.log(selectedTime.value)
+  }
+  // console.log(selectedBooking.value);
 }
 </script>
 
@@ -137,99 +180,39 @@ function getStartTime(event) {
     <form action="/">
       <input type="time" placeholder="Start Time" />
       <input type="time" placeholder="End Time" />
+
+      {{ selectedTime.start }}
+      {{ selectedTime.end }}
     </form>
 
     <section>
       <h3>Section A</h3>
 
       <div v-if="AllProccessComputers.length !== 0">
-        <ul style="list-style: none">
-          <li v-for="computer in AllProccessComputers" :key="computer.id">
-            <div class="timeline" v-if="computer.section == 'Section A'"
-            @select="getStartTime($event)"
+        <ul style="list-style: none; user-select: none">
+          <li v-for="computer in AllProccessComputers" :key="computer.id" dropzon>
+            <div
+              class="overlay"
+              @dragstart="getDrag($event, computer.id)"
+              @dragend="getDrag($event, computer.id)"
+              @drag="getDrag($event, computer.id)"
+              draggable="true"
+              style="cursor: col-resize;"
+            ></div>
+
+            <div
+              class="timeline"
+              v-if="computer.section == 'Section A'"
+              draggable="false"
             >
-              <div>{{ computer.name }}</div>
-              <div class="timespace" >
-                <div
-                  v-for="book in computer.bookings"
-                  :key="book.id"
-                  :style="{ left: book.offset + 'px' }"
-                  :title="book.code"
-                  class="timewidth"
-                >
-                  <div
-                    :style="{
-                      width: book.width + 'px',
-                      border: '1px solid white',
-                      background: `rgb(
-                        ${Math.floor(Math.random() * 255)},
-                        ${Math.floor(Math.random() * 255)},
-                        ${Math.floor(Math.random() * 255)}
-                      )`,
-                      overflow: `hidden`,
-                    }"
-                  >
-                    <span class="blend">
-                      {{ book.code }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <section>
-      <h3>Section B</h3>
-
-      <div v-if="AllProccessComputers.length !== 0">
-        <ul style="list-style: none">
-          <li v-for="computer in AllProccessComputers" :key="computer.id">
-            <div class="timeline" v-if="computer.section == 'Section A'">
-              <div>{{ computer.name }}</div>
+              <div draggable="false" class="com-name">{{ computer.name }}</div>
               <div class="timespace">
-                <div
-                  v-for="book in computer.bookings"
-                  :key="book.id"
-                  :style="{ left: book.offset + 'px' }"
-                  :title="book.code"
-                  class="timewidth"
-                >
-                  <div
-                    :style="{
-                      width: book.width + 'px',
-                      border: '1px solid white',
-                      background: `rgb(
-                  ${Math.floor(Math.random() * 255)},
-                  ${Math.floor(Math.random() * 255)},
-                  ${Math.floor(Math.random() * 255)}
-                )`,
-                      overflow: `hidden`,
-                    }"
-                  >
-                    <span class="blend">
-                      {{ book.code }}
-                    </span>
-                  </div>
+
+
+                <div v-if="selectedBooking.computer == computer.id" class="reltime" :style="{ left: selectedBooking.offset + 'px' , width: selectedBooking.width + 'px'}">
+                  {{ Math.ceil(selectedBooking.width / 65 ) }} hrs
                 </div>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </section>
 
-    <section>
-      <h3>Section C</h3>
-
-      <div v-if="AllProccessComputers.length !== 0">
-        <ul style="list-style: none">
-          <li v-for="computer in AllProccessComputers" :key="computer.id">
-            <div class="timeline" v-if="computer.section == 'Section A'">
-              <div>{{ computer.name }}</div>
-              <div class="timespace">
                 <div
                   v-for="book in computer.bookings"
                   :key="book.id"
@@ -241,11 +224,7 @@ function getStartTime(event) {
                     :style="{
                       width: book.width + 'px',
                       border: '1px solid white',
-                      background: `rgb(
-                  ${Math.floor(Math.random() * 255)},
-                  ${Math.floor(Math.random() * 255)},
-                  ${Math.floor(Math.random() * 255)}
-                )`,
+                      background: '#44ddad',
                       overflow: `hidden`,
                     }"
                   >
@@ -265,10 +244,13 @@ function getStartTime(event) {
 
 <style scoped>
 main{
-  --main-width: 800px,
-
-  max-width: var(--main-width);
+  max-width: max-content;
   margin: 0 auto;
+}
+
+.com-name{
+  /* font-weight: bold; */
+  margin-left: -5px;
 }
 
 .blend{
@@ -278,11 +260,12 @@ main{
 .timeline{
   display: flex;
   flex-direction: row;
-  background: #e5e5e5;
+  background: #517ed1;
   width: 800px;
   /* height: pa; */
   padding: 10px;
   margin-bottom: 5px;
+  position: relative;
 }
 
 .timespace{
@@ -290,9 +273,29 @@ main{
   /* overflow: hidden; */
 }
 
-.timewidth{
+.timewidth, .reltime{
   position: absolute;
-  border: 1px solid black;
+  border: 1px solid #189b8e;
   cursor: pointer;
+  text-align: center;
+}
+
+
+.overlay{
+  position: absolute;
+  height: 100%;
+  width: calc(100% - 30px);
+  background: rgba(252, 252, 252, 0.349);
+  z-index: 3;
+  right: 0px;
+}
+
+li{
+  position: relative;
+}
+
+.reltime{
+  background: #eb1d02;
+  color: aliceblue;
 }
 </style>

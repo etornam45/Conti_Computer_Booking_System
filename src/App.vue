@@ -12,6 +12,12 @@ import { RouterView } from "vue-router";
 </template>
 
 <style scoped>
+
+main{
+  width: 800px;
+  margin: 0 auto;
+}
+
   footer{
     display: flex;
     align-items: center;

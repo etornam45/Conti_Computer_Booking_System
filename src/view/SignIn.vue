@@ -13,7 +13,7 @@ let password = "";
 async function signin() {
   const authData = await pb
     .collection("students")
-    .authWithPassword(email, password)
+    .authWithPassword(email.trim(), password.trim())
     .then(() => {
       router.push({
         name: "home",
@@ -24,7 +24,7 @@ async function signin() {
 
 <template>
   <main>
-    <form>
+    <form action="#">
       <h3>Sign Into Account</h3>
 
       <input v-model="email" type="email" placeholder="E-mail" />

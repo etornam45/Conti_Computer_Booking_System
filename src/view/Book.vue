@@ -32,7 +32,7 @@ onMounted(async () => {
     })
     .then((result) => {
       AllComputers.value = result;
-      // console.log(result);
+      console.log(result);
     });
 
   await pb
@@ -43,20 +43,20 @@ onMounted(async () => {
         let computer = {
           name: AllComputers.value[c].display_name,
           section: AllComputers.value[c].section,
+          id: AllComputers.value[c].id,
           bookings: [],
         };
 
         for (let booking = 0; booking < a.length; booking++) {
           if (AllComputers.value[c].id == a[booking].computer) {
-            let start = new Date(a[booking].start_time);
-            let end = new Date(a[booking].end_time);
-
-            let aBook = {
-              width: (end - start) * changeRate,
-              offset: (start - tadayCurrent) * changeRate,
-            };
-            console.log(aBook);
-            computer.bookings.push(aBook);
+            computer.bookings.push(
+              create_a_booking({
+                start: a[booking].start_time,
+                end: a[booking].end_time,
+                id: a[booking].id,
+                code: a[booking].booking_code,
+              })
+            );
           }
         }
         // console.log(computer);
@@ -67,16 +67,26 @@ onMounted(async () => {
 
   await pb.collection("bookings").subscribe("*", function (e) {
     switch (e.action) {
-      case 'create':
-        
+      case "create":
+        AllProccessComputers.value.forEach((com, i) => {
+          if (com.id == e.record.computer) {
+            AllProccessComputers.value[i].bookings.push(
+              create_a_booking({
+                start: e.record.start_time,
+                end: e.record.end_time,
+                id: e.record.id,
+                code: e.record.booking_code,
+              })
+            );
+          }
+        });
         break;
       case "update":
         
         break;
       case "delete":
-        
         break;
-    
+
       default:
         break;
     }
@@ -86,6 +96,18 @@ onMounted(async () => {
 onUnmounted(async () => {
   await pb.collection("bookings").unsubscribe("*");
 });
+
+function create_a_booking({ start, end, id, code }) {
+  let startT = new Date(start);
+  let endT = new Date(end);
+
+  return {
+    id: id,
+    code: code,
+    width: (endT - startT) * changeRate,
+    offset: (startT - tadayCurrent) * changeRate,
+  };
+}
 </script>
 
 <template>
@@ -106,23 +128,26 @@ onUnmounted(async () => {
               <div class="timespace">
                 <div
                   v-for="book in computer.bookings"
-                  :key="book.width"
+                  :key="book.id"
                   :style="{ left: book.offset + 'px' }"
+                  :title="book.code"
                   class="timewidth"
                 >
                   <div
                     :style="{
                       width: book.width + 'px',
                       border: '1px solid white',
-                      background: `rgb(${Math.floor(
-                        Math.random() * 255
-                      )},${Math.floor(Math.random() * 255)},${Math.floor(
-                        Math.random() * 255
-                      )})`,
+                      background: `rgb(
+                        ${Math.floor(Math.random() * 255)},
+                        ${Math.floor(Math.random() * 255)},
+                        ${Math.floor(Math.random() * 255)}
+                      )`,
+                      overflow: `hidden`,
                     }"
                   >
-                    <!-- {{ book.width }} -->
-                    .
+                    <span class="blend">
+                      {{ book.code }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -150,6 +175,10 @@ main{
   margin: 0 auto;
 }
 
+.blend{
+  mix-blend-mode: color-burn;
+}
+
 .timeline{
   display: flex;
   flex-direction: row;
@@ -162,11 +191,12 @@ main{
 
 .timespace{
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .timewidth{
   position: absolute;
   border: 1px solid black;
+  cursor: pointer;
 }
 </style>

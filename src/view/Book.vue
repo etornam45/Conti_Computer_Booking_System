@@ -10,9 +10,7 @@ let currentUser = pb.authStore.model;
 let AllComputers = ref([]);
 let bookings = ref([]);
 
-let tadayCurrent = new Date(
-  "Fri Jun 22 2023 10:51:23 GMT+0000 (Greenwich Mean Time)"
-);
+let tadayCurrent = new Date();
 
 let selectedBooking = ref({});
 

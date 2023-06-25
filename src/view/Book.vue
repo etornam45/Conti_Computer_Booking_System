@@ -189,7 +189,9 @@ function getDrag(event, computer) {
       selectedTime.value.end.toTimeString().split(":")[0]
     }:${selectedTime.value.end.toTimeString().split(":")[1]}`;
 
+    document.querySelector("#computer").value = selectedTime.value.computer;
     console.log(selectedTime.value);
+
   }
   // console.log(selectedBooking.value);
 }
@@ -240,6 +242,12 @@ const BookAPC = async (e) => {
     })
     .catch((err) => console.log(err));
 };
+
+function changePc(event){
+  // console.log(event);
+  selectedBooking.value.computer = event.target.value
+ selectedTime.value.computer = event.target.value
+} 
 </script>
 
 <template>
@@ -247,15 +255,15 @@ const BookAPC = async (e) => {
     <form>
       <label for="computer">Choose a Computer:</label>
 
-      <select name="comuter" id="computer">
+      <select name="comuter" id="computer" @change="changePc($event)">
         <option value="" >--Please choose an option--</option>
         <option
           v-for="computer in AllComputers"
           :key="computer.id"
           :value="computer.id"
           name = 'c'
-          @click="console.log('Hello')"
         >
+        {{ computer.section }} - 
           {{ computer.display_name }}
         </option>
       </select>
@@ -404,7 +412,7 @@ const BookAPC = async (e) => {
         </ul>
       </div>
     </section>
-    <section>
+    <section> 
       <h3>Section A</h3>
 
       <div v-if="AllProccessComputers.length !== 0">
@@ -474,7 +482,10 @@ const BookAPC = async (e) => {
 main {
   max-width: max-content;
   margin: 0 auto;
+  overflow-x: hidden;
+  margin-bottom: 100px;
 }
+
 
 .com-name {
   /* font-weight: bold; */
@@ -525,5 +536,24 @@ li {
 .reltime {
   background: #eb1d02;
   color: aliceblue;
+}
+
+form{
+  padding: 20px 0;
+}
+
+input,select{
+  padding: 10px;
+}
+
+@media screen and (max-width: 800px) {
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  main{
+    margin: 0px 10px;
+  }
 }
 </style>

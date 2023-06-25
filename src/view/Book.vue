@@ -191,7 +191,6 @@ function getDrag(event, computer) {
 
     document.querySelector("#computer").value = selectedTime.value.computer;
     console.log(selectedTime.value);
-
   }
   // console.log(selectedBooking.value);
 }
@@ -243,11 +242,11 @@ const BookAPC = async (e) => {
     .catch((err) => console.log(err));
 };
 
-function changePc(event){
+function changePc(event) {
   // console.log(event);
-  selectedBooking.value.computer = event.target.value
- selectedTime.value.computer = event.target.value
-} 
+  selectedBooking.value.computer = event.target.value;
+  selectedTime.value.computer = event.target.value;
+}
 </script>
 
 <template>
@@ -256,223 +255,242 @@ function changePc(event){
       <label for="computer">Choose a Computer:</label>
 
       <select name="comuter" id="computer" @change="changePc($event)">
-        <option value="" >--Please choose an option--</option>
-        <option
-          v-for="computer in AllComputers"
-          :key="computer.id"
-          :value="computer.id"
-          name = 'c'
-        >
-        {{ computer.section }} - 
-          {{ computer.display_name }}
-        </option>
+        <option value="">--Please choose an option--</option>
+          <option
+            v-for="computer in AllComputers"
+            :key="computer.id"
+            :value="computer.id"
+          >
+            <div >
+              {{ computer.section }}
+              -
+              {{ computer.display_name }}
+            </div>
+          </option>
       </select>
+      <label for="start">Start Time</label>
       <input
+        name="start"
         id="start"
         type="time"
         placeholder="Start Time"
         @change="($event) => updateStartTime($event)"
       />
+      <label for="end">End Time</label>
       <input
+        name="end"
         id="end"
         type="time"
         placeholder="End Time"
         @change="(event) => updateEndTime(event)"
       />
+      <div>
+        <b>From: </b>
+        {{ new Date(selectedTime.start).toLocaleTimeString() }} <b>To:</b>
+        {{ new Date(selectedTime.end).toLocaleTimeString() }}
+      </div>
 
-      {{ new Date(selectedTime.start).toLocaleTimeString() }}
-      {{ new Date(selectedTime.end).toLocaleTimeString() }}
-
-      <button @click="BookAPC($event)">book</button>
+      <button @click="BookAPC($event)">Book</button>
     </form>
 
     <section>
       <h3>Section A</h3>
 
-      <div v-if="AllProccessComputers.length !== 0">
-        <ul style="list-style: none; user-select: none">
-          <li
-            v-for="computer in AllProccessComputers"
-            :key="computer.id"
-            dropzon
-          >
-            <div
-              class="overlay"
-              @dragstart="getDrag($event, computer.id)"
-              @dragend="getDrag($event, computer.id)"
-              @drag="getDrag($event, computer.id)"
-              draggable="true"
-              style="cursor: col-resize"
-            ></div>
-
-            <div
-              class="timeline"
-              v-if="computer.section == 'Section A'"
-              draggable="false"
+      <div class="scroll">
+        <div v-if="AllProccessComputers.length !== 0">
+          <ul style="list-style: none; user-select: none">
+            <li
+              v-for="computer in AllProccessComputers"
+              :key="computer.id"
+              dropzon
             >
-              <div draggable="false" class="com-name">{{ computer.name }}</div>
-              <div class="timespace">
-                <div
-                  v-if="selectedBooking.computer == computer.id"
-                  class="reltime"
-                  :style="{
-                    left: selectedBooking.offset + 'px',
-                    width: selectedBooking.width + 'px',
-                  }"
-                >
-                  {{ Math.ceil(selectedBooking.width / 65) }} hrs
-                </div>
+              <div
+                class="overlay"
+                @dragstart="getDrag($event, computer.id)"
+                @dragend="getDrag($event, computer.id)"
+                @drag="getDrag($event, computer.id)"
+                draggable="true"
+                style="cursor: col-resize"
+              ></div>
 
-                <div
-                  v-for="book in computer.bookings"
-                  :key="book.id"
-                  :style="{ left: book.offset + 'px' }"
-                  :title="book.code"
-                  class="timewidth"
-                >
+              <div
+                class="timeline"
+                v-if="computer.section == 'Section A'"
+                draggable="false"
+              >
+                <div draggable="false" class="com-name">
+                  {{ computer.name }}
+                </div>
+                <div class="timespace">
                   <div
+                    v-if="selectedBooking.computer == computer.id"
+                    class="reltime"
                     :style="{
-                      width: book.width + 'px',
-                      border: '1px solid white',
-                      background: '#44ddad',
-                      overflow: `hidden`,
+                      left: selectedBooking.offset + 'px',
+                      width: selectedBooking.width + 'px',
                     }"
                   >
-                    <span class="blend">
-                      {{ book.code }}
-                    </span>
+                    {{ Math.ceil(selectedBooking.width / 65) }} hrs
+                  </div>
+
+                  <div
+                    v-for="book in computer.bookings"
+                    :key="book.id"
+                    :style="{ left: book.offset + 'px' }"
+                    :title="book.code"
+                    class="timewidth"
+                  >
+                    <div
+                      :style="{
+                        width: book.width + 'px',
+                        border: '1px solid white',
+                        background: '#44ddad',
+                        overflow: `hidden`,
+                      }"
+                    >
+                      <span class="blend">
+                        {{ book.code }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
     <section>
-      <h3>Section A</h3>
-
-      <div v-if="AllProccessComputers.length !== 0">
-        <ul style="list-style: none; user-select: none">
-          <li
-            v-for="computer in AllProccessComputers"
-            :key="computer.id"
-            dropzon
-          >
-            <div
-              class="overlay"
-              @dragstart="getDrag($event, computer.id)"
-              @dragend="getDrag($event, computer.id)"
-              @drag="getDrag($event, computer.id)"
-              draggable="true"
-              style="cursor: col-resize"
-            ></div>
-
-            <div
-              class="timeline"
-              v-if="computer.section == 'Section B'"
-              draggable="false"
+      <h3>Section B</h3>
+      <div class="scroll">
+        <div v-if="AllProccessComputers.length !== 0">
+          <ul style="list-style: none; user-select: none">
+            <li
+              v-for="computer in AllProccessComputers"
+              :key="computer.id"
+              dropzon
             >
-              <div draggable="false" class="com-name">{{ computer.name }}</div>
-              <div class="timespace">
-                <div
-                  v-if="selectedBooking.computer == computer.id"
-                  class="reltime"
-                  :style="{
-                    left: selectedBooking.offset + 'px',
-                    width: selectedBooking.width + 'px',
-                  }"
-                >
-                  {{ Math.ceil(selectedBooking.width / 65) }} hrs
-                </div>
+              <div
+                class="overlay"
+                @dragstart="getDrag($event, computer.id)"
+                @dragend="getDrag($event, computer.id)"
+                @drag="getDrag($event, computer.id)"
+                draggable="true"
+                style="cursor: col-resize"
+              ></div>
 
-                <div
-                  v-for="book in computer.bookings"
-                  :key="book.id"
-                  :style="{ left: book.offset + 'px' }"
-                  :title="book.code"
-                  class="timewidth"
-                >
+              <div
+                class="timeline"
+                v-if="computer.section == 'Section B'"
+                draggable="false"
+              >
+                <div draggable="false" class="com-name">
+                  {{ computer.name }}
+                </div>
+                <div class="timespace">
                   <div
+                    v-if="selectedBooking.computer == computer.id"
+                    class="reltime"
                     :style="{
-                      width: book.width + 'px',
-                      border: '1px solid white',
-                      background: '#44ddad',
-                      overflow: `hidden`,
+                      left: selectedBooking.offset + 'px',
+                      width: selectedBooking.width + 'px',
                     }"
                   >
-                    <span class="blend">
-                      {{ book.code }}
-                    </span>
+                    {{ Math.ceil(selectedBooking.width / 65) }} hrs
+                  </div>
+
+                  <div
+                    v-for="book in computer.bookings"
+                    :key="book.id"
+                    :style="{ left: book.offset + 'px' }"
+                    :title="book.code"
+                    class="timewidth"
+                  >
+                    <div
+                      :style="{
+                        width: book.width + 'px',
+                        border: '1px solid white',
+                        background: '#44ddad',
+                        overflow: `hidden`,
+                      }"
+                    >
+                      <span class="blend">
+                        {{ book.code }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
-    <section> 
-      <h3>Section A</h3>
+    <section>
+      <h3>Section C</h3>
 
-      <div v-if="AllProccessComputers.length !== 0">
-        <ul style="list-style: none; user-select: none">
-          <li
-            v-for="computer in AllProccessComputers"
-            :key="computer.id"
-            dropzon
-          >
-            <div
-              class="overlay"
-              @dragstart="getDrag($event, computer.id)"
-              @dragend="getDrag($event, computer.id)"
-              @drag="getDrag($event, computer.id)"
-              draggable="true"
-              style="cursor: col-resize"
-            ></div>
-
-            <div
-              class="timeline"
-              v-if="computer.section == 'Section C'"
-              draggable="false"
+      <div class="scroll">
+        <div v-if="AllProccessComputers.length !== 0">
+          <ul style="list-style: none; user-select: none">
+            <li
+              v-for="computer in AllProccessComputers"
+              :key="computer.id"
+              dropzon
             >
-              <div draggable="false" class="com-name">{{ computer.name }}</div>
-              <div class="timespace">
-                <div
-                  v-if="selectedBooking.computer == computer.id"
-                  class="reltime"
-                  :style="{
-                    left: selectedBooking.offset + 'px',
-                    width: selectedBooking.width + 'px',
-                  }"
-                >
-                  {{ Math.ceil(selectedBooking.width / 65) }} hrs
-                </div>
+              <div
+                class="overlay"
+                @dragstart="getDrag($event, computer.id)"
+                @dragend="getDrag($event, computer.id)"
+                @drag="getDrag($event, computer.id)"
+                draggable="true"
+                style="cursor: col-resize"
+              ></div>
 
-                <div
-                  v-for="book in computer.bookings"
-                  :key="book.id"
-                  :style="{ left: book.offset + 'px' }"
-                  :title="book.code"
-                  class="timewidth"
-                >
+              <div
+                class="timeline"
+                v-if="computer.section == 'Section C'"
+                draggable="false"
+              >
+                <div draggable="false" class="com-name">
+                  {{ computer.name }}
+                </div>
+                <div class="timespace">
                   <div
+                    v-if="selectedBooking.computer == computer.id"
+                    class="reltime"
                     :style="{
-                      width: book.width + 'px',
-                      border: '1px solid white',
-                      background: '#44ddad',
-                      overflow: `hidden`,
+                      left: selectedBooking.offset + 'px',
+                      width: selectedBooking.width + 'px',
                     }"
                   >
-                    <span class="blend">
-                      {{ book.code }}
-                    </span>
+                    {{ Math.ceil(selectedBooking.width / 65) }} hrs
+                  </div>
+
+                  <div
+                    v-for="book in computer.bookings"
+                    :key="book.id"
+                    :style="{ left: book.offset + 'px' }"
+                    :title="book.code"
+                    class="timewidth"
+                  >
+                    <div
+                      :style="{
+                        width: book.width + 'px',
+                        border: '1px solid white',
+                        background: '#44ddad',
+                        overflow: `hidden`,
+                      }"
+                    >
+                      <span class="blend">
+                        {{ book.code }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
   </main>
@@ -483,9 +501,14 @@ main {
   max-width: max-content;
   margin: 0 auto;
   overflow-x: hidden;
-  margin-bottom: 100px;
+  padding-bottom: 100px;
 }
 
+form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
 
 .com-name {
   /* font-weight: bold; */
@@ -538,12 +561,27 @@ li {
   color: aliceblue;
 }
 
-form{
+form {
   padding: 20px 0;
 }
 
-input,select{
+input,
+select {
   padding: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 18px;
+  background: rgb(243, 127, 127);
+  font-weight: 800;
+  border: 0;
+  --border-color: rgb(231, 54, 23);
+
+  transition: 500ms;
+  border-bottom: 3px solid var(--border-color);
+  cursor: pointer;
 }
 
 @media screen and (max-width: 800px) {
@@ -552,8 +590,20 @@ input,select{
     flex-direction: column;
     gap: 20px;
   }
-  main{
+  main {
     margin: 0px 10px;
+  }
+
+  section {
+    overflow-x: hidden;
+  }
+
+  .overlay {
+    width: 790px;
+    left: 30px;
+  }
+  .scroll {
+    overflow-x: scroll;
   }
 }
 </style>

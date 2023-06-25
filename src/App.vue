@@ -24,5 +24,6 @@ import { RouterView } from "vue-router";
     width: 100vw;
     position: fixed;
     bottom: 0;
+    z-index: 4;
   }
 </style>

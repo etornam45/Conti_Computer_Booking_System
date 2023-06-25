@@ -20,6 +20,9 @@ let changeRate = 65 / (3600 * 1000);
 
 let AllProccessComputers = ref([]);
 
+// Bookings of the Logged in user
+let userBookings = ref([]);
+
 onMounted(async () => {
   if (!currentUser) {
     router.push({
@@ -41,6 +44,7 @@ onMounted(async () => {
     .collection("bookings")
     .getFullList()
     .then((a) => {
+      bookings.value = a;
       for (let c = 0; c < AllComputers.value.length; c++) {
         let computer = {
           name: AllComputers.value[c].display_name,
@@ -104,6 +108,12 @@ onMounted(async () => {
               comp.bookings.splice(boodId, 1);
             }
           });
+        });
+
+        bookings.value.forEach((book, boodId) => {
+          if (book.id == e.record.id) {
+            bookings.value.splice(boodId, 1);
+          }
         });
         break;
 
@@ -229,17 +239,45 @@ const updateEndTime = (event) => {
 
 const BookAPC = async (e) => {
   e.preventDefault();
-  await pb
-    .collection("bookings")
-    .create({
-      computer: selectedTime.value.computer,
-      start_time: selectedTime.value.start,
-      end_time: selectedTime.value.end,
-      booking_code: `BC-${Math.floor(Math.random() * 100000)}`,
-      student: currentUser.id,
-      status: "Pending",
-    })
-    .catch((err) => console.log(err));
+
+  let canceled = false;
+
+  bookings.value.forEach((book) => {
+    if (book.computer == selectedTime.value.computer) {
+      // console.log(book.computer, selectedTime.value.computer);
+      if (
+        new Date(book.start_time) < new Date(selectedTime.value.end) &&
+        new Date(book.end_time) > new Date(selectedTime.value.start)
+      ) {
+        console.log("Naaaaaaa");
+        canceled = true;
+      }
+    }
+    if (book.student == currentUser.id) {
+      // console.log(book);
+      if (
+        new Date(book.start_time) < new Date(selectedTime.value.end) &&
+        new Date(book.end_time) > new Date(selectedTime.value.start)
+      ) {
+        console.log("Naaaaaaa");
+        canceled = true;
+      }
+    }
+  });
+
+  if (!canceled) {
+    await pb
+      .collection("bookings")
+      .create({
+        computer: selectedTime.value.computer,
+        start_time: selectedTime.value.start,
+        end_time: selectedTime.value.end,
+        booking_code: `BC-${Math.floor(Math.random() * 100000)}`,
+        student: currentUser.id,
+        status: "Pending",
+      })
+      .catch((err) => console.log(err));
+  }
 };
 
 function changePc(event) {
@@ -256,17 +294,17 @@ function changePc(event) {
 
       <select name="comuter" id="computer" @change="changePc($event)">
         <option value="">--Please choose an option--</option>
-          <option
-            v-for="computer in AllComputers"
-            :key="computer.id"
-            :value="computer.id"
-          >
-            <div >
-              {{ computer.section }}
-              -
-              {{ computer.display_name }}
-            </div>
-          </option>
+        <option
+          v-for="computer in AllComputers"
+          :key="computer.id"
+          :value="computer.id"
+        >
+          <div>
+            {{ computer.section }}
+            -
+            {{ computer.display_name }}
+          </div>
+        </option>
       </select>
       <label for="start">Start Time</label>
       <input

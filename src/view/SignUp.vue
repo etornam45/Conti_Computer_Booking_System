@@ -3,27 +3,38 @@ import PocketBase from "pocketbase";
 import { ref } from "vue";
 const pb = new PocketBase("http://127.0.0.1:8090");
 
-let name = ref("");
-let email = ref("");
-let password = ref("");
-let student_id = ref("");
+let name 
+let email
+let password
+let student_id
+
+import { useRouter } from "vue-router";
+
+let router = useRouter();
 
 const signUpUser = async () => {
-  const record = await pb
+
+  console.log(name.split(" ")[0],email, password, student_id,name);
+  await pb
     .collection("students")
     .create({
-      username: name.value.split("")[0],
-      email: email.value,
+      username: name.split("")[0],
+      email: email,
       emailVisibility: true,
-      password: password.value,
-      passwordConfirm: password.value,
-      name: name.value,
-      student_id: student_id.value,
+      password: password,
+      passwordConfirm: password,
+      name: name,
+      student_id: eval(student_id),
     })
-    .then(async () => {
-      const authData = await pb
+    .then(async (result) => {
+      console.log(result);
+      await pb
         .collection("students")
-        .authWithPassword(email.value, password.value);
+        .authWithPassword(email, password).then(res => {
+          router.push({
+            name: "home"
+          })
+        });
     });
 
   // console.log(record)
@@ -32,7 +43,7 @@ const signUpUser = async () => {
 
 <template>
   <main>
-    <form action="#">
+    <form>
       <h3>Create An Account</h3>
 
       <input v-model="name" type="text" placeholder="Full Name" />

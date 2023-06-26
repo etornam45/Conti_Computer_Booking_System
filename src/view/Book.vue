@@ -86,6 +86,7 @@ onMounted(async () => {
             );
           }
         });
+        bookings.value.push(e.record);
         break;
       case "update":
         AllProccessComputers.value.forEach((comp) => {
@@ -254,7 +255,7 @@ const BookAPC = async (e) => {
       }
     }
     if (book.student == currentUser.id) {
-      // console.log(book);
+      console.log(book);
       if (
         new Date(book.start_time) < new Date(selectedTime.value.end) &&
         new Date(book.end_time) > new Date(selectedTime.value.start)

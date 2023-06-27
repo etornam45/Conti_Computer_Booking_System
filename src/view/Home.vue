@@ -15,18 +15,18 @@ let currentUser = pb.authStore.model;
 
 let currentBooking = ref();
 
-// Available for computers free at the time 
+// Available for computers free at the time
 let Available = ref([]);
 
-// The total number of computers available 
+// The total number of computers available
 let totalPc = ref(0);
 pb.authStore.onChange(() => {
   currentUser = pb.authStore.model;
 });
 
-  let bookings = ref([]);
+let bookings = ref([]);
 onMounted(async () => {
-  // If user is not signed in navigate to sign in page 
+  // If user is not signed in navigate to sign in page
   console.log(currentUser);
   if (!currentUser) {
     console.log(currentUser);
@@ -35,19 +35,20 @@ onMounted(async () => {
     });
   }
 
-
-
-  await pb.collection("bookings").getFullList({
-    filter: "student = '" + currentUser.id + "'",
-    expand: "computer",
-  }).then((a) => {
-    bookings.value = a;
-    console.log(a)
-  });
+  await pb
+    .collection("bookings")
+    .getFullList({
+      filter: "student = '" + currentUser.id + "'",
+      expand: "computer",
+    })
+    .then((a) => {
+      bookings.value = a;
+      console.log(a);
+    });
 
   // Getting all the computers
 
-  // Gets all the Pcs 
+  // Gets all the Pcs
   getTotalPc();
   // getAvailable();
   pb.collection("computers").subscribe("*", function (e) {
@@ -67,7 +68,7 @@ onMounted(async () => {
   });
 });
 
-// Function to get all PC's 
+// Function to get all PC's
 const getTotalPc = async () => {
   const computers = await pb
     .collection("computers")
@@ -143,10 +144,33 @@ function bookNow() {
       </section>
       <section class="booked">
         <NoBookings v-if="!bookings.length" />
-        <div v-else v-for="booking in bookings" :key="booking.id">
-          {{ booking?.expand?.computer.display_name }}
-          {{ booking?.expand?.computer.section }}
-          {{ new Date(booking.start_time).toLocaleTimeString() }}
+        <div
+          class="bookings"
+          v-else
+          v-for="booking in bookings"
+          :key="booking.id"
+        >
+          <p>
+            COMPUTER :
+            {{ booking?.expand?.computer.display_name }}
+          </p>
+          <p>
+            SECTION :
+            {{ booking?.expand?.computer.section }}
+          </p>
+
+          <p>
+            START TIME :
+            {{ new Date(booking.start_time).toLocaleTimeString() }}
+          </p>
+          <p>
+            END TIME :
+            {{ new Date(booking.end_time).toLocaleTimeString() }}
+          </p>
+          <p>
+            BOOKING CODE :
+            {{ booking.booking_code }}
+          </p>
         </div>
       </section>
     </article>
@@ -154,16 +178,28 @@ function bookNow() {
 </template>
 
 <style scoped>
+.bookings {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  background: rgb(204, 204, 228);
+  padding: 20px;
+  box-sizing: border-box;
+  gap: 10px;
+}
+
 .book-now:disabled {
   background: rgb(216, 216, 216) !important;
   cursor: no-drop;
 }
 
 .booked {
-  min-height: 200px;
+  /* min-height: 200px; */
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .ava-sec {

@@ -192,13 +192,11 @@ function getDrag(event, computer) {
       computer: selectedBooking.value["computer"],
     };
 
-    document.querySelector("#start").value = `${
-      selectedTime.value.start.toTimeString().split(":")[0]
-    }:${selectedTime.value.start.toTimeString().split(":")[1]}`;
+    document.querySelector("#start").value = new Date(selectedTime.value.start).toISOString().split('.')[0]
     // document.querySelector("#end").value = selectedTime.value.end.toTimeString()
-    document.querySelector("#end").value = `${
-      selectedTime.value.end.toTimeString().split(":")[0]
-    }:${selectedTime.value.end.toTimeString().split(":")[1]}`;
+    document.querySelector("#end").value = new Date(selectedTime.value.end).toISOString().split('.')[0];
+
+    console.log();
 
     document.querySelector("#computer").value = selectedTime.value.computer;
     console.log(selectedTime.value);
@@ -208,11 +206,7 @@ function getDrag(event, computer) {
 
 const updateStartTime = (event) => {
   selectedTime.value.start = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth(),
-    new Date().getDate(),
-    event.target.value.split(":")[0],
-    event.target.value.split(":")[1]
+    event.target.value
   );
 
   selectedBooking.value.offset =
@@ -228,11 +222,7 @@ const updateStartTime = (event) => {
 const updateEndTime = (event) => {
   console.log(event);
   selectedTime.value.end = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth(),
-    new Date().getDate(),
-    event.target.value.split(":")[0],
-    event.target.value.split(":")[1]
+    event.target.value
   );
   selectedBooking.value.width =
     (selectedTime.value.end - selectedTime.value.start) * changeRate;
@@ -266,6 +256,11 @@ const BookAPC = async (e) => {
     }
   });
 
+  if(new Date() > new Date(selectedTime.value.start) || new Date(selectedTime.value.end) > new Date(new Date().setHours(new Date().getHours() + 13))){
+    canceled = true
+  }
+  console.log(new Date(new Date().setHours(new Date().getHours() + 13)));
+  console.log(selectedTime.value.end);
   if (!canceled) {
     await pb
       .collection("bookings")
@@ -290,6 +285,7 @@ function changePc(event) {
 
 <template>
   <main>
+    <h3 style='text-align: center; margin-top: 20px; '>Book a Computer</h3>
     <form>
       <label for="computer">Choose a Computer:</label>
 
@@ -311,7 +307,7 @@ function changePc(event) {
       <input
         name="start"
         id="start"
-        type="time"
+        type="datetime-local"
         placeholder="Start Time"
         @change="($event) => updateStartTime($event)"
       />
@@ -319,7 +315,7 @@ function changePc(event) {
       <input
         name="end"
         id="end"
-        type="time"
+        type="datetime-local"
         placeholder="End Time"
         @change="(event) => updateEndTime(event)"
       />

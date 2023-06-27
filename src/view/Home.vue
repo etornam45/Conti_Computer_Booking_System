@@ -24,7 +24,7 @@ pb.authStore.onChange(() => {
   currentUser = pb.authStore.model;
 });
 
-
+  let bookings = ref([]);
 onMounted(async () => {
   // If user is not signed in navigate to sign in page 
   console.log(currentUser);
@@ -34,6 +34,18 @@ onMounted(async () => {
       name: "signin",
     });
   }
+
+
+
+  await pb.collection("bookings").getFullList({
+    filter: "student = '" + currentUser.id + "'",
+    expand: "computer",
+  }).then((a) => {
+    bookings.value = a;
+    console.log(a)
+  });
+
+  // Getting all the computers
 
   // Gets all the Pcs 
   getTotalPc();
@@ -130,8 +142,12 @@ function bookNow() {
         </button>
       </section>
       <section class="booked">
-        <NoBookings v-if="!currentBooking" />
-        <div v-else>Booked !</div>
+        <NoBookings v-if="!bookings.length" />
+        <div v-else v-for="booking in bookings" :key="booking.id">
+          {{ booking?.expand?.computer.display_name }}
+          {{ booking?.expand?.computer.section }}
+          {{ new Date(booking.start_time).toLocaleTimeString() }}
+        </div>
       </section>
     </article>
   </main>

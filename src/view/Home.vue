@@ -42,7 +42,14 @@ onMounted(async () => {
       expand: "computer",
     })
     .then((a) => {
-      bookings.value = a;
+      a.forEach((b) => {
+        if (
+          new Date(b.created) >
+          new Date(new Date().setHours(new Date().getHours() - 12))
+        ) {
+          bookings.value.push(b);
+        }
+      });
       console.log(a);
     });
 
@@ -104,6 +111,23 @@ function bookNow() {
     name: "book",
   });
 }
+
+const cancelBooking = async (id) => {
+  if (confirm("Are you sure you want to delete the booking")) {
+    await pb
+      .collection("bookings")
+      .delete(id)
+      .then((a) => {
+        if (a) {
+          bookings.value.forEach((book, boodId) => {
+            if (book.id == id) {
+              bookings.value.splice(boodId, 1);
+            }
+          });
+        }
+      });
+  }
+};
 </script>
 
 <template>
@@ -127,12 +151,12 @@ function bookNow() {
 
     <article>
       <section class="ava-sec">
-        <div class="ave">
+        <!-- <div class="ave">
           <Computer />
           <p>
             <span>{{ Available.length }}</span> / {{ totalPc }} Available
           </p>
-        </div>
+        </div> -->
         <button
           @click="bookNow"
           class="book-now"
@@ -150,27 +174,19 @@ function bookNow() {
           v-for="booking in bookings"
           :key="booking.id"
         >
-          <p>
-            COMPUTER :
-            {{ booking?.expand?.computer.display_name }}
-          </p>
-          <p>
-            SECTION :
-            {{ booking?.expand?.computer.section }}
-          </p>
-
-          <p>
-            START TIME :
-            {{ new Date(booking.start_time).toLocaleTimeString() }}
-          </p>
-          <p>
-            END TIME :
-            {{ new Date(booking.end_time).toLocaleTimeString() }}
-          </p>
-          <p>
-            BOOKING CODE :
-            {{ booking.booking_code }}
-          </p>
+          <div class="bkk">
+            <p>COMPUTER : {{ booking?.expand?.computer.display_name }}</p>
+            <p>SECTION : {{ booking?.expand?.computer.section }}</p>
+            <p>
+              START TIME :
+              {{ new Date(booking.start_time).toLocaleTimeString() }}
+            </p>
+            <p>
+              END TIME : {{ new Date(booking.end_time).toLocaleTimeString() }}
+            </p>
+            <p>BOOKING CODE : {{ booking.booking_code }}</p>
+          </div>
+          <button @click="cancelBooking(booking.id)">Cancel Booking</button>
         </div>
       </section>
     </article>
@@ -178,14 +194,22 @@ function bookNow() {
 </template>
 
 <style scoped>
-.bookings {
+.bkk {
   display: grid;
   width: 100%;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.bookings {
+  width: 100%;
   background: rgb(204, 204, 228);
   padding: 20px;
   box-sizing: border-box;
   gap: 10px;
+}
+
+.bookings button {
+  width: 100%;
+  margin-top: 10px;
 }
 
 .book-now:disabled {
@@ -309,13 +333,13 @@ button {
 
   border-radius: 6px;
   font-size: 18px;
-  background: rgb(236, 18, 18);
+  background: rgb(245, 90, 90);
   font-weight: 800;
   border: 0;
   --border-color: rgb(136, 26, 7);
   color: white;
   transition: 500ms;
-  /* border-bottom: 3px solid var(--border-color); */
+  border-bottom: 3px solid var(--border-color);
   cursor: pointer;
 }
 </style>

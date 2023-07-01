@@ -23,6 +23,16 @@ let AllProccessComputers = ref([]);
 // Bookings of the Logged in user
 let userBookings = ref([]);
 
+let notification = ref("");
+
+const displayNotification = (msg) => {
+  notification.value = msg;
+  setTimeout(() => {
+    notification.value = "";
+  }, 3000);
+};
+
+
 onMounted(async () => {
   if (!currentUser) {
     router.push({
@@ -240,8 +250,12 @@ const BookAPC = async (e) => {
         new Date(book.start_time) < new Date(selectedTime.value.end) &&
         new Date(book.end_time) > new Date(selectedTime.value.start)
       ) {
+
+        // 
+        displayNotification('You cannot select the same time range')
         console.log("Naaaaaaa");
         canceled = true;
+
       }
     }
     if (book.student == currentUser.id) {
@@ -251,6 +265,7 @@ const BookAPC = async (e) => {
         new Date(book.end_time) > new Date(selectedTime.value.start)
       ) {
         console.log("Naaaaaaa");
+        displayNotification('You cannot select the same time range');
         canceled = true;
       }
     }
@@ -258,6 +273,7 @@ const BookAPC = async (e) => {
 
   if(new Date() > new Date(selectedTime.value.start) || new Date(selectedTime.value.end) > new Date(new Date().setHours(new Date().getHours() + 13))){
     canceled = true
+    displayNotification("Your selected time must be within the next 13 hours")
   }
   console.log(new Date(new Date().setHours(new Date().getHours() + 13)));
   console.log(selectedTime.value.end);
@@ -285,6 +301,9 @@ function changePc(event) {
 
 <template>
   <main>
+    <div v-if="notification" class="notification">
+      {{ notification }}
+    </div>
     <h3 style='text-align: center; margin-top: 20px; '>Book a Computer</h3>
     <form>
       <label for="computer">Choose a Computer:</label>
@@ -327,6 +346,15 @@ function changePc(event) {
 
       <button @click="BookAPC($event)">Book</button>
     </form>
+
+    <div class="desktop">
+      You can select a computers using the timeline below.
+    </div>
+
+    <div class="mobile">
+      Please check your selected time below before booking
+    </div>
+
 
     <section>
       <h3>Section A</h3>
@@ -532,6 +560,15 @@ function changePc(event) {
 </template>
 
 <style scoped>
+.notification{
+  width: 100%;
+  background: rgb(233, 142, 24);
+  padding: 10px;
+  margin-top: 10px;
+  text-align: center;
+  color: white;
+}
+
 main {
   max-width: max-content;
   margin: 0 auto;
@@ -619,6 +656,11 @@ button {
   cursor: pointer;
 }
 
+
+.mobile{
+  display: none;
+}
+
 @media screen and (max-width: 800px) {
   form {
     display: flex;
@@ -640,5 +682,18 @@ button {
   .scroll {
     overflow-x: scroll;
   }
+
+  .desktop{
+    display: none;
+  }
+  .mobile{
+    display: block;
+  }
+}
+
+
+.mobile,.notification{
+  padding: 10px ;
+  text-align: center;
 }
 </style>

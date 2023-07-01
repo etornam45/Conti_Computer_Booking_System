@@ -7,7 +7,7 @@ import { RouterView } from "vue-router";
     <RouterView> </RouterView>
   </main>
   <footer>
-    <div>Made with 💕 by <a href="#">@Bennie</a></div>
+    <div>Made with 💕 by <a href="https://twitter.com/supacodar" _blank>@Bennie</a></div>
   </footer>
 </template>
 

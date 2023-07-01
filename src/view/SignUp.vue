@@ -1,49 +1,45 @@
 <script setup>
 import PocketBase from "pocketbase";
-import { ref } from "vue";
-const pb = new PocketBase("http://127.0.0.1:8090");
+const pb = new PocketBase("http://localhost:8090");
 
-let name 
-let email
-let password
-let student_id
+let name = "";
+let email;
+let password;
+let student_id;
 
 import { useRouter } from "vue-router";
 
 let router = useRouter();
 
 const signUpUser = async () => {
+  const data = {
+    username: name.split("").join("_"),
+    email: email,
+    emailVisibility: true,
+    password: password,
+    passwordConfirm: password,
+    name: name,
+    student_id: student_id,
+  };
 
-  console.log(name.split(" ")[0],email, password, student_id,name);
-  await pb
+  const record = await pb
     .collection("students")
-    .create({
-      username: name.split("")[0],
-      email: email,
-      emailVisibility: true,
-      password: password,
-      passwordConfirm: password,
-      name: name,
-      student_id: eval(student_id),
-    })
+    .create(data)
     .then(async (result) => {
-      console.log(result);
+      // await pb;
       await pb
         .collection("students")
-        .authWithPassword(email, password).then(res => {
-          router.push({
-            name: "home"
-          })
+        .authWithPassword(email, password)
+        .then(() => {
+          router.push({ name: "home" });
         });
     });
-
-  // console.log(record)
 };
 </script>
 
 <template>
   <main>
-    <form>
+    <form v-on:submit.prevent>
       <h3>Create An Account</h3>
 
       <input v-model="name" type="text" placeholder="Full Name" />
@@ -51,9 +47,11 @@ const signUpUser = async () => {
       <input v-model="email" type="email" placeholder="E-mail" />
       <input v-model="password" type="password" placeholder="Password" />
 
-      <button v-on:click="signUpUser">Sign Up</button>
+      <button v-on:click.prevent="signUpUser()">Sign Up</button>
 
-      <p>Already have an account? <RouterLink to="/signin">Sign In</RouterLink></p>
+      <p>
+        Already have an account? <RouterLink to="/signin">Sign In</RouterLink>
+      </p>
     </form>
   </main>
 </template>

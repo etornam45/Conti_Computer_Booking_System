@@ -18,7 +18,8 @@ let currentBooking = ref();
 // Available for computers free at the time
 let Available = ref([]);
 
-// The total number of computers available
+// The total number of comput() ers available
+
 let totalPc = ref(0);
 pb.authStore.onChange(() => {
   currentUser = pb.authStore.model;
@@ -131,12 +132,17 @@ const cancelBooking = async (id) => {
 </script>
 
 <template>
-  <main v-if="currentUser">
+  <main v-if="currentUser" class=""> 
     <header>
       <div>
         <div style="display: flex; align-items: center; gap: 20px">
-          <div class="avatar"></div>
-          <div class="user">
+          <div class="avatar">
+            <img
+              :src="'https://api.dicebear.com/6.x/open-peeps/svg?'+'seed='+currentUser.name"
+              alt="avatar"
+            />
+          </div>
+          <div class="user" >
             <p>
               {{ currentUser.student_id }}
             </p>
@@ -146,7 +152,8 @@ const cancelBooking = async (id) => {
           </div>
         </div>
         <button v-on:click="LogOut">Sign Out</button>
-      </div>
+      </div> 
+      
     </header>
 
     <article>
@@ -273,7 +280,9 @@ section {
 .avatar {
   height: 50px;
   width: 50px;
-  background: black;
+  background: rgb(163, 157, 157);
+
+  overflow: hidden;
   border-radius: 50px;
 }
 .user {
